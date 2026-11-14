@@ -104,33 +104,79 @@ class LinkedList:
             head_letter = head_letter.next_letter
         print(" -> ".join(letters))
 
-TURNS = 4        # сколько витков
-POINTS = 400     # сколько точек в спирали (больше - глаже)
-RADIUS = 1.0     # радиус спирали
-HEIGHT = 10.0    # высота
-SPEED = 0.05     # скорость вращения
-
-z = np.linspace(0, HEIGHT, POINTS)
-phase = z / HEIGHT * TURNS * 2 * np.pi
-
-fig = plt.figure(figsize=(6, 8))
-ax = fig.add_subplot(projection="3d")
-ax.set_xlim(-1.5, 1.5)
-ax.set_ylim(-1.5, 1.5)
-ax.set_zlim(0, HEIGHT)
-ax.set_box_aspect((1, 1, 3))
-ax.axis("off")
-
-line1, = ax.plot([], [], [], lw=3, color="tab:blue")
-line2, = ax.plot([], [], [], lw=3, color="tab:red")
+    def Fill(self, sentence):
+        for symbol in sentence:
+            if symbol == ".":
+                break
+            if symbol.isalpha():
+                self.AddToEnd(symbol)
 
 
-def update(frame):
-    a = phase + frame * SPEED
-    line1.set_data_3d(RADIUS * np.cos(a), RADIUS * np.sin(a), z)
-    line2.set_data_3d(RADIUS * np.cos(a + np.pi), RADIUS * np.sin(a + np.pi), z)
-    return line1, line2
+def ReadInt(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Нужно ввести целое число")
 
 
-anim = FuncAnimation(fig, update, interval=20, cache_frame_data=False)
-plt.show()
+def ReadLetter(prompt):
+    while True:
+        letter = input(prompt)
+        if len(letter) == 1 and letter.isalpha():
+            return letter
+        print("Нужно ввести одну букву")
+
+
+def main():
+    letters = LinkedList()
+    sentence = input("Введите предложение, оканчивающееся точкой: ")
+    while not sentence.endswith("."):
+        sentence = input("Предложение должно оканчиваться точкой: ")
+    letters.Fill(sentence)
+    print("Список построен:")
+    letters.Look()
+
+    while True:
+        print("\n1. Добавить в конец")
+        print("2. Добавить в начало")
+        print("3. Добавить в позицию")
+        print("4. Удалить по значению")
+        print("5. Удалить по номеру")
+        print("6. Очистить список")
+        print("7. Найти номер элемента")
+        print("8. Просмотр списка")
+        print("0. Выход")
+        choice = input("Выберите пункт: ")
+
+        match choice:
+            case "1":
+                letters.AddToEnd(ReadLetter("Буква: "))
+            case "2":
+                letters.AddToBeginning(ReadLetter("Буква: "))
+            case "3":
+                letter = ReadLetter("Буква: ")
+                position = ReadInt("Позиция (с 0): ")
+                letters.AddToPosition(letter, position)
+            case "4":
+                letters.RemByMean(ReadLetter("Буква для удаления: "))
+            case "5":
+                letters.RemByNumb(ReadInt("Номер (с 0): "))
+            case "6":
+                letters.Clear()
+            case "7":
+                index = letters.FindNumbByMean(ReadLetter("Буква для поиска: "))
+                if index == -1:
+                    print("Элемент не найден")
+                else:
+                    print(f"Номер элемента: {index}")
+            case "8":
+                letters.Look()
+            case "0":
+                break
+            case _:
+                print("Нет такого пункта")
+
+
+if __name__ == "__main__":
+    main()
